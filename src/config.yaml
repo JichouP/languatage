@@ -1,0 +1,27 @@
+- lang: rust
+  ext:
+    - rs
+  ignore:
+    - target
+
+- lang: javascript
+  ext:
+    - js
+    - jsx
+    - mjs
+    - cjs
+  ignore:
+    - node_modules
+    - dist
+    - out
+
+- lang: typescript
+  ext:
+    - ts
+    - tsx
+    - mts
+    - cts
+  ignore:
+    - node_modules
+    - dist
+    - out
