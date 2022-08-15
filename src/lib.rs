@@ -10,9 +10,7 @@ const CONFIG: &str = include_str!("config.yaml");
 pub fn exec<P: AsRef<Path>>(path: P) -> Vec<LanguageStat> {
     let configs = parse_config();
     let files = get_files(path);
-    let stats = get_stats(&configs, &files);
-
-    stats
+    get_stats(&configs, &files)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,7 +41,7 @@ fn parse_config() -> Vec<ConfigItem> {
 fn get_files<P: AsRef<Path>>(path: P) -> Vec<String> {
     let dir = fs::read_dir(path).unwrap();
     let paths: Vec<String> = dir
-        .map(|v| {
+        .flat_map(|v| {
             let file = v.unwrap();
             if file.metadata().unwrap().is_dir() {
                 get_files(file.path())
@@ -51,21 +49,20 @@ fn get_files<P: AsRef<Path>>(path: P) -> Vec<String> {
                 vec![file.path().to_string_lossy().to_string()]
             }
         })
-        .flatten()
         .collect();
 
     paths
 }
 
-fn get_stats(configs: &Vec<ConfigItem>, files: &Vec<String>) -> Vec<LanguageStat> {
+fn get_stats(configs: &[ConfigItem], files: &[String]) -> Vec<LanguageStat> {
     let stats: Vec<LanguageSize> = configs
-        .into_iter()
+        .iter()
         .map(|config| {
             let ConfigItem { lang, ext, ignore } = config;
-            let paths: Vec<&String> = files
-                .into_iter()
+            let size: usize = files
+                .iter()
                 .filter(|&file| {
-                    ignore.into_iter().all(|ignore| {
+                    ignore.iter().all(|ignore| {
                         !file.starts_with(&format!(
                             ".{}{}{}",
                             path::MAIN_SEPARATOR,
@@ -74,13 +71,7 @@ fn get_stats(configs: &Vec<ConfigItem>, files: &Vec<String>) -> Vec<LanguageStat
                         ))
                     })
                 })
-                .filter(|&file| {
-                    ext.into_iter()
-                        .any(|ext| file.ends_with(&format!(".{}", ext)))
-                })
-                .collect();
-            let size: usize = paths
-                .into_iter()
+                .filter(|&file| ext.iter().any(|ext| file.ends_with(&format!(".{}", ext))))
                 .map(|path| fs::read(path).unwrap().len())
                 .sum();
 
