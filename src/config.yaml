@@ -1,27 +1,37 @@
-- lang: rust
-  ext:
-    - rs
-  ignore:
-    - target
+language:
+  - lang: rust
+    ext:
+      - rs
+    ignore:
+      - target
 
-- lang: javascript
-  ext:
-    - js
-    - jsx
-    - mjs
-    - cjs
-  ignore:
-    - node_modules
-    - dist
-    - out
+  - lang: javascript
+    ext:
+      - js
+      - jsx
+      - mjs
+      - cjs
+    ignore:
+      - dist
+      - out
 
-- lang: typescript
-  ext:
-    - ts
-    - tsx
-    - mts
-    - cts
+  - lang: typescript
+    ext:
+      - ts
+      - tsx
+      - mts
+      - cts
+    ignore:
+      - dist
+      - out
+
+  - lang: vue
+    ext:
+      - vue
+    ignore:
+      - .nuxt
+
+common:
   ignore:
+    - .git
     - node_modules
-    - dist
-    - out
