@@ -42,7 +42,7 @@ mod tests {
             LanguageConfigItem {
                 lang: "rust".into(),
                 ext: vec!["rs".into()],
-                ignore: vec!["target".into()]
+                ignore: vec![]
             }
         )
     }

@@ -2,8 +2,7 @@ language:
   - lang: rust
     ext:
       - rs
-    ignore:
-      - target
+    ignore: []
 
   - lang: javascript
     ext:
@@ -24,6 +23,7 @@ language:
     ignore:
       - dist
       - out
+      - .next
 
   - lang: vue
     ext:
@@ -35,3 +35,4 @@ common:
   ignore:
     - .git
     - node_modules
+    - target
