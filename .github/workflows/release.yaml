@@ -5,9 +5,6 @@ on:
     tags:
       - "v*"
 
-env:
-  ARTIFACT_NAME: languatage
-
 jobs:
   build:
     name: Release binary
@@ -16,20 +13,20 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: ${{ env.ARTIFACT_NAME }}
-            asset_name: ${{ env.ARTIFACT_NAME }}-x86_64-unknown-linux-gnu
+            artifact_name: languatage
+            asset_name: languatage-x86_64-unknown-linux-gnu
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            artifact_name: ${{ env.ARTIFACT_NAME }}
-            asset_name: ${{ env.ARTIFACT_NAME }}-x86_64-unknown-linux-musl
+            artifact_name: languatage
+            asset_name: languatage-x86_64-unknown-linux-musl
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
-            artifact_name: ${{ env.ARTIFACT_NAME }}.exe
-            asset_name: ${{ env.ARTIFACT_NAME }}-x86_64-pc-windows-gnu.exe
+            artifact_name: languatage.exe
+            asset_name: languatage-x86_64-pc-windows-gnu.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: ${{ env.ARTIFACT_NAME }}
-            asset_name: ${{ env.ARTIFACT_NAME }}-x86_64-apple-darwin
+            artifact_name: languatage
+            asset_name: languatage-x86_64-apple-darwin
 
     runs-on: ${{ matrix.os }}
 
