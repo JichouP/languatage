@@ -5,11 +5,12 @@ on:
     tags:
       - "v*"
 
+env:
+  ARTIFACT_NAME: languatage
+
 jobs:
   build:
     name: Release binary
-    env:
-      ARTIFACT_NAME: languatage
     strategy:
       matrix:
         include:
