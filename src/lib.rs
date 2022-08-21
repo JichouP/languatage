@@ -128,7 +128,7 @@ mod tests {
     fn test_get_stat() {
         let stat = get_stat(".");
 
-        assert_eq!(stat[0].lang, "rust".to_string());
+        assert_eq!(stat[0].lang, "Rust".to_string());
         assert_eq!(stat[0].percentage, 100.0);
     }
 
@@ -137,7 +137,7 @@ mod tests {
         let config = Config::default();
         let stat = get_stat_with_config(".", &config);
 
-        assert_eq!(stat[0].lang, "rust".to_string());
+        assert_eq!(stat[0].lang, "Rust".to_string());
         assert_eq!(stat[0].percentage, 100.0);
         assert_eq!(stat.len(), config.language.len());
     }

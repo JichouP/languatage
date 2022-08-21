@@ -40,7 +40,7 @@ mod tests {
         assert_eq!(
             config.language[0],
             LanguageConfigItem {
-                lang: "rust".into(),
+                lang: "Rust".into(),
                 ext: vec!["rs".into()],
                 ignore: vec![]
             }
