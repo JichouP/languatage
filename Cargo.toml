@@ -1,8 +1,10 @@
 [package]
 name = "languatage"
+description = "A tool for calculate the percentage of languages used in a directory"
 authors = ["JichouP"]
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 [lib]
 name = "languatage"
