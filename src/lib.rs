@@ -101,14 +101,14 @@ fn get_dir_entries<
             .split(std::path::MAIN_SEPARATOR)
             .last()
             .unwrap()
-            .starts_with(".");
+            .starts_with('.');
 
     if is_system_dir || is_dot_dir {
         return vec![];
     }
 
     fs::read_dir(path.as_ref())
-        .expect(path.as_ref().to_str().unwrap())
+        .unwrap()
         .into_iter()
         .flat_map(|entry| -> Vec<DirEntry> {
             let entry = entry.unwrap();
