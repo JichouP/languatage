@@ -90,8 +90,25 @@ fn get_dir_entries<
     ignores: &[S],
     exts: &[X],
 ) -> Vec<DirEntry> {
-    fs::read_dir(path)
-        .unwrap()
+    let is_system_dir = ["$RECYCLE.BIN", "Recovery", "System Volume Information"]
+        .into_iter()
+        .any(|p| path.as_ref().to_str().unwrap().contains(p));
+    let is_dot_dir = path.as_ref().to_str().unwrap() != "."
+        && path
+            .as_ref()
+            .to_str()
+            .unwrap()
+            .split(std::path::MAIN_SEPARATOR)
+            .last()
+            .unwrap()
+            .starts_with(".");
+
+    if is_system_dir || is_dot_dir {
+        return vec![];
+    }
+
+    fs::read_dir(path.as_ref())
+        .expect(path.as_ref().to_str().unwrap())
         .into_iter()
         .flat_map(|entry| -> Vec<DirEntry> {
             let entry = entry.unwrap();
