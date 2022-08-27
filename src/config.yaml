@@ -4,6 +4,11 @@ language:
       - rs
     ignore: []
 
+  - lang: Go
+    ext:
+      - go
+    ignore: []
+
   - lang: JavaScript
     ext:
       - js
