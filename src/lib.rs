@@ -45,6 +45,11 @@ pub fn get_stat<P: AsRef<Path>>(path: P) -> Vec<LanguageStat> {
 /// ```
 pub fn get_stat_with_config<P: AsRef<Path>>(path: P, config: &Config) -> Vec<LanguageStat> {
     let sizes = get_size(path, config);
+    let sizes = sizes
+        .into_iter()
+        .filter(|(_, s)| *s != 0)
+        .collect::<Vec<_>>();
+
     let total_size: u64 = sizes.iter().map(|v| v.1).sum();
 
     sizes
@@ -98,7 +103,7 @@ fn get_dir_entries<
             .as_ref()
             .to_str()
             .unwrap()
-            .split(std::path::MAIN_SEPARATOR)
+            .split(&['/', '\\'][..])
             .last()
             .unwrap()
             .starts_with('.');
