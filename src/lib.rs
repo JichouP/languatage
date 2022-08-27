@@ -45,10 +45,11 @@ pub fn get_stat<P: AsRef<Path>>(path: P) -> Vec<LanguageStat> {
 /// ```
 pub fn get_stat_with_config<P: AsRef<Path>>(path: P, config: &Config) -> Vec<LanguageStat> {
     let sizes = get_size(path, config);
-    let sizes = sizes
+    let mut sizes = sizes
         .into_iter()
         .filter(|(_, s)| *s != 0)
         .collect::<Vec<_>>();
+    sizes.sort_by(|a, b| b.1.cmp(&a.1));
 
     let total_size: u64 = sizes.iter().map(|v| v.1).sum();
 
@@ -161,7 +162,7 @@ mod tests {
 
         assert_eq!(stat[0].lang, "Rust".to_string());
         assert_eq!(stat[0].percentage, 100.0);
-        assert_eq!(stat.len(), config.language.len());
+        assert_eq!(stat.len(), 1);
     }
 
     #[test]
