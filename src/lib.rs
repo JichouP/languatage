@@ -127,18 +127,21 @@ fn get_dir_entries<
             });
 
             if is_ignored {
-                vec![]
-            } else if entry.metadata().unwrap().is_dir() {
-                get_dir_entries(entry.path(), ignores, exts)
+                return vec![];
+            };
+
+            if entry.metadata().unwrap().is_dir() {
+                return get_dir_entries(entry.path(), ignores, exts);
+            };
+
+            let is_correct_ext = exts
+                .iter()
+                .any(|ext| entry_path.ends_with(&format!(".{}", ext)));
+
+            if is_correct_ext {
+                vec![entry]
             } else {
-                let is_correct_ext = exts
-                    .iter()
-                    .any(|ext| entry_path.ends_with(&format!(".{}", ext)));
-                if is_correct_ext {
-                    vec![entry]
-                } else {
-                    vec![]
-                }
+                vec![]
             }
         })
         .collect()
