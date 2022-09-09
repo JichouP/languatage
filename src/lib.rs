@@ -96,25 +96,25 @@ fn get_dir_entries<
     ignores: &[S],
     exts: &[X],
 ) -> Vec<DirEntry> {
-    let is_system_dir = ["$RECYCLE.BIN", "Recovery", "System Volume Information"]
-        .into_iter()
-        .any(|p| path.as_ref().to_str().unwrap().contains(p));
-    let is_dot_dir = path.as_ref().to_str().unwrap() != "."
+    let path = path.as_ref().to_str().unwrap();
+
+    let is_dot_dir = path != "."
         && path
-            .as_ref()
-            .to_str()
-            .unwrap()
             .split(&['/', '\\'][..])
             .last()
             .unwrap()
             .starts_with('.');
 
-    if is_system_dir || is_dot_dir {
+    if is_dot_dir {
         return vec![];
     }
 
-    fs::read_dir(path.as_ref())
-        .unwrap()
+    let read_dir = match fs::read_dir(path) {
+        Ok(read_dir) => read_dir,
+        Err(_) => return vec![],
+    };
+
+    read_dir
         .into_iter()
         .flat_map(|entry| -> Vec<DirEntry> {
             let entry = entry.unwrap();
