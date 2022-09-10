@@ -9,16 +9,6 @@ language:
       - go
     ignore: []
 
-  - lang: JavaScript
-    ext:
-      - js
-      - jsx
-      - mjs
-      - cjs
-    ignore:
-      - dist
-      - out
-
   - lang: JSX
     ext:
       - jsx
@@ -37,14 +27,7 @@ language:
       - out
       - .next
 
-  - lang: TSX
-    ext:
-      - tsx
-    ignore:
-      - dist
-      - out
-
-  - lang: Vue.js
+  - lang: Vue
     ext:
       - vue
     ignore:
