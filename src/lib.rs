@@ -6,7 +6,7 @@
 //! ```rust
 //! use languatage::{get_stat, LanguageStat};
 //!
-//! let stat: Vec<LanguageStat> = get_stat(".");
+//! let stat: std::io::Result<Vec<LanguageStat>> = get_stat(".");
 //! ```
 
 pub mod config;
@@ -29,9 +29,9 @@ pub struct LanguageStat {
 /// ```rust
 /// use languatage::{get_stat, LanguageStat};
 ///
-/// let stat: Vec<LanguageStat> = get_stat(".");
+/// let stat: std::io::Result<Vec<LanguageStat>> = get_stat(".");
 /// ```
-pub fn get_stat<P: AsRef<Path>>(path: P) -> Vec<LanguageStat> {
+pub fn get_stat<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<LanguageStat>> {
     let config = Config::default();
     get_stat_with_config(path, &config)
 }
@@ -41,10 +41,13 @@ pub fn get_stat<P: AsRef<Path>>(path: P) -> Vec<LanguageStat> {
 /// use languatage::{get_stat_with_config, Config, LanguageStat};
 ///
 /// let config: Config = Config::default();
-/// let stat: Vec<LanguageStat> = get_stat_with_config(".", &config);
+/// let stat: std::io::Result<Vec<LanguageStat>> = get_stat_with_config(".", &config);
 /// ```
-pub fn get_stat_with_config<P: AsRef<Path>>(path: P, config: &Config) -> Vec<LanguageStat> {
-    let sizes = get_size(path, config);
+pub fn get_stat_with_config<P: AsRef<Path>>(
+    path: P,
+    config: &Config,
+) -> std::io::Result<Vec<LanguageStat>> {
+    let sizes = get_size(path, config)?;
     let mut sizes = sizes
         .into_iter()
         .filter(|(_, s)| *s != 0)
@@ -53,36 +56,43 @@ pub fn get_stat_with_config<P: AsRef<Path>>(path: P, config: &Config) -> Vec<Lan
 
     let total_size: u64 = sizes.iter().map(|v| v.1).sum();
 
-    sizes
+    let result = sizes
         .iter()
         .map(|v| LanguageStat {
             lang: v.0.clone(),
             size: v.1,
             percentage: v.1 as f64 / total_size as f64 * 100.0,
         })
-        .collect()
+        .collect();
+
+    Ok(result)
 }
 
-fn get_size<P: AsRef<Path>>(path: P, config: &Config) -> Vec<(String, u64)> {
+fn get_size<P: AsRef<Path>>(path: P, config: &Config) -> std::io::Result<Vec<(String, u64)>> {
     let common_ignores = &config.common.ignore;
 
-    config
+    let result = config
         .language
         .iter()
-        .map(|language| {
+        .filter_map(|language| {
             // concat common_ignores and lang_ignores
             let ignores: Vec<_> = common_ignores
                 .iter()
                 .chain(language.ignore.iter())
                 .collect();
 
-            let entries = &get_dir_entries(&path, &ignores, &language.ext);
+            let entries = &get_dir_entries(&path, &ignores, &language.ext)?;
 
-            let size: u64 = entries.iter().map(|v| v.metadata().unwrap().len()).sum();
+            let size: u64 = entries
+                .iter()
+                .filter_map(|v| Some(v.metadata().ok()?.len()))
+                .sum();
 
-            (language.lang.clone(), size)
+            Some((language.lang.clone(), size))
         })
-        .collect()
+        .collect();
+
+    Ok(result)
 }
 
 /// Returns all files under the given path that match the common config
@@ -95,29 +105,24 @@ fn get_dir_entries<
     path: P,
     ignores: &[S],
     exts: &[X],
-) -> Vec<DirEntry> {
-    let path = path.as_ref().to_str().unwrap();
+) -> Option<Vec<DirEntry>> {
+    let path = path.as_ref().to_str()?;
 
-    let is_dot_dir = path != "."
-        && path
-            .split(&['/', '\\'][..])
-            .last()
-            .unwrap()
-            .starts_with('.');
+    let is_dot_dir = path != "." && path.split(&['/', '\\'][..]).last()?.starts_with('.');
 
     if is_dot_dir {
-        return vec![];
+        return None;
     }
 
     let read_dir = match fs::read_dir(path) {
         Ok(read_dir) => read_dir,
-        Err(_) => return vec![],
+        Err(_) => return None,
     };
 
-    read_dir
+    let result = read_dir
         .into_iter()
-        .flat_map(|entry| -> Vec<DirEntry> {
-            let entry = entry.unwrap();
+        .filter_map(|entry| -> Option<Vec<DirEntry>> {
+            let entry = entry.ok()?;
 
             let entry_path = entry.path();
             let entry_path = entry_path.to_string_lossy();
@@ -127,10 +132,10 @@ fn get_dir_entries<
             });
 
             if is_ignored {
-                return vec![];
+                return None;
             };
 
-            if entry.metadata().unwrap().is_dir() {
+            if entry.metadata().ok()?.is_dir() {
                 return get_dir_entries(entry.path(), ignores, exts);
             };
 
@@ -139,12 +144,15 @@ fn get_dir_entries<
                 .any(|ext| entry_path.ends_with(&format!(".{}", ext)));
 
             if is_correct_ext {
-                vec![entry]
+                Some(vec![entry])
             } else {
-                vec![]
+                None
             }
         })
-        .collect()
+        .flatten()
+        .collect();
+
+    Some(result)
 }
 
 #[cfg(test)]
@@ -152,7 +160,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_get_stat() {
-        let stat = get_stat(".");
+        let stat = get_stat(".").unwrap();
 
         assert_eq!(stat[0].lang, "Rust".to_string());
         assert_eq!(stat[0].percentage, 100.0);
@@ -161,7 +169,7 @@ mod tests {
     #[test]
     fn test_get_stat_with_config() {
         let config = Config::default();
-        let stat = get_stat_with_config(".", &config);
+        let stat = get_stat_with_config(".", &config).unwrap();
 
         assert_eq!(stat[0].lang, "Rust".to_string());
         assert_eq!(stat[0].percentage, 100.0);
@@ -177,6 +185,7 @@ mod tests {
 
         assert_eq!(
             get_dir_entries(".", common_ignores, &config.language[0].ext)
+                .unwrap()
                 .iter()
                 .any(|entry| entry
                     .path()
@@ -187,6 +196,7 @@ mod tests {
 
         assert_eq!(
             get_dir_entries(".", &ignores, &config.language[0].ext)
+                .unwrap()
                 .iter()
                 .any(|entry| entry
                     .path()

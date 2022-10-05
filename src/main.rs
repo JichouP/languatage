@@ -13,7 +13,7 @@ fn main() {
     let arg = Args::parse();
     let path = arg.path;
 
-    let stat = get_stat(path);
+    let stat = get_stat(path).unwrap();
 
     let mut table = Table::init(vec![row![b->"Language", b->"Percentage", b->"Size"]]);
 
