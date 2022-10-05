@@ -22,7 +22,7 @@ build-binary = ["clap", "num-format", "prettytable-rs"]
 
 [dependencies]
 anyhow = "1.0.62"
-clap = { version = "3.2.20", optional = true, features = ["derive"] }
+clap = { version = "4.0.9", optional = true, features = ["derive"] }
 num-format = { version = "0.4.0", optional = true }
 prettytable-rs = { version = "0.9.0", optional = true }
 serde = { version = "1.0.144", features = ["derive"] }
