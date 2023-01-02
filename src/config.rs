@@ -12,8 +12,10 @@ impl Config {
     pub fn new(language: Vec<LanguageConfigItem>, common: CommonConfig) -> Self {
         Self { language, common }
     }
+}
 
-    pub fn default() -> Self {
+impl Default for Config {
+    fn default() -> Self {
         serde_yaml::from_str(DEFAULT_CONFIG).expect("src/config.yaml is invalid")
     }
 }

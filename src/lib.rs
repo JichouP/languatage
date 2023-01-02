@@ -128,7 +128,7 @@ fn get_dir_entries<
             let entry_path = entry_path.to_string_lossy();
 
             let is_ignored = ignores.iter().any(|ignore| {
-                entry_path.contains(&format!("{}{}{}", MAIN_SEPARATOR, ignore, MAIN_SEPARATOR))
+                entry_path.contains(&format!("{MAIN_SEPARATOR}{ignore}{MAIN_SEPARATOR}"))
             });
 
             if is_ignored {
@@ -141,7 +141,7 @@ fn get_dir_entries<
 
             let is_correct_ext = exts
                 .iter()
-                .any(|ext| entry_path.ends_with(&format!(".{}", ext)));
+                .any(|ext| entry_path.ends_with(&format!(".{ext}")));
 
             if is_correct_ext {
                 Some(vec![entry])
